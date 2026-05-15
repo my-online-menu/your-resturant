@@ -3,216 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Digital Menu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Premium Digital Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #38bdf8;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
+            --bg: #0b0f14;
+            --card: #161b22;
+            --accent: #e2b857; /* Gold accent */
+            --text: #ffffff;
+            --text-dim: #8b949e;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text);
+            scroll-behavior: smooth;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            padding-bottom: 80px;
-        }
-
-        header {
+        /* Hero Section */
+        .hero {
+            height: 60vh;
+            background: linear-gradient(rgba(0,0,0,0.6), var(--bg)), 
+                        url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            padding: 3rem 1rem;
-            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            padding: 20px;
         }
 
-        header h1 {
-            font-size: 2.5rem;
-            letter-spacing: -1px;
-            margin-bottom: 0.5rem;
+        .hero h1 { 
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem; 
+            margin-bottom: 10px;
+            color: var(--accent);
         }
 
-        header p {
-            color: var(--accent-color);
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            font-weight: 600;
+        /* Wishlist Sidebar/Mini-list */
+        #wishlist-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: black;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 100;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(226, 184, 87, 0.3);
         }
 
-        #product-container {
+        /* Menu Sections */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        
+        .category-section { margin-top: 50px; }
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            border-bottom: 2px solid var(--accent);
+            display: inline-block;
+            margin-bottom: 30px;
+            padding-right: 50px;
+        }
+
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
         }
 
         .product-card {
-            background: var(--card-bg);
-            border-radius: 16px;
+            background: var(--card);
+            border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-
-        .product-img {
-            height: 200px;
-            background-size: cover;
-            background-position: center;
-            background-color: #334155;
-        }
-
-        .product-info {
-            padding: 1.5rem;
-        }
-
-        .category {
-            font-size: 0.7rem;
-            color: var(--accent-color);
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .product-info h3 {
-            margin: 0.5rem 0;
-            font-size: 1.25rem;
-        }
-
-        .price {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #f1f5f9;
-            margin-bottom: 1rem;
-        }
-
-        .add-to-cart {
-            width: 100%;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent-color);
-            color: #0f172a;
-            font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: 0.3s;
+            border: 1px solid #30363d;
         }
 
-        .add-to-cart:active {
-            transform: scale(0.98);
-        }
+        .product-card:hover { transform: translateY(-5px); border-color: var(--accent); }
 
-        /* Floating Cart Icon */
-        .cart-status {
+        .img-container { height: 180px; background-size: cover; background-position: center; }
+
+        .info { padding: 15px; }
+        .info h3 { font-size: 1.2rem; margin-bottom: 5px; }
+        .info .price { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
+
+        /* Full Overlay (Modal) */
+        #overlay {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--accent-color);
-            color: #0f172a;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-            font-weight: 600;
-            z-index: 100;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
         }
 
-        #loader {
-            text-align: center;
-            padding: 5rem;
-            color: var(--text-dim);
-            font-style: italic;
+        .modal-content {
+            background: var(--card);
+            max-width: 500px;
+            width: 100%;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.3s ease;
         }
 
-        @media (max-width: 600px) {
-            #product-container {
-                grid-template-columns: 1fr;
-                padding: 1rem;
-            }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 30px; color: white; cursor: pointer; z-index: 10;
+        }
+
+        .modal-img { height: 250px; background-size: cover; background-position: center; }
+        .modal-body { padding: 30px; }
+        .modal-body p { color: var(--text-dim); margin: 15px 0; }
+        
+        .wish-btn {
+            background: var(--accent);
+            border: none; width: 100%; padding: 12px;
+            border-radius: 8px; font-weight: bold; cursor: pointer;
+        }
+
+        /* Wishlist List Modal */
+        #wishlist-modal {
+            position: fixed;
+            bottom: 80px; right: 20px;
+            background: var(--card);
+            width: 300px; padding: 20px;
+            border-radius: 15px; border: 1px solid var(--accent);
+            display: none; z-index: 99;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <p>Добре дошли в</p>
-        <h1>НАШЕТО МЕНЮ</h1>
-    </header>
+    <div id="wishlist-counter" onclick="toggleWishlist()">⭐ Списък желания (<span id="count">0</span>)</div>
 
-    <div id="loader">Зареждане на менюто...</div>
-    <div id="product-container"></div>
+    <section class="hero">
+        <p>ДОБРЕ ДОШЛИ В</p>
+        <h1>ELITE BISTRO</h1>
+        <p>Открийте вкуса на истината</p>
+    </section>
 
-    <div class="cart-status">
-        🛒 Количка: <span id="cart-count">0</span>
+    <div class="container" id="menu-content">
+        <div id="loader" style="text-align: center; padding: 50px;">Зареждане на изкушенията...</div>
+    </div>
+
+    <!-- Product Details Overlay -->
+    <div id="overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-img" class="modal-img"></div>
+            <div class="modal-body">
+                <h2 id="modal-title"></h2>
+                <h3 id="modal-price" style="color:var(--accent)"></h3>
+                <p id="modal-desc"></p>
+                <button class="wish-btn" id="add-wish-btn">Добави в списъка за поръчка</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Mini-List -->
+    <div id="wishlist-modal">
+        <h4 style="margin-bottom:10px; color:var(--accent)">Моите желания:</h4>
+        <ul id="wishlist-items" style="list-style:none; font-size:0.9rem;"></ul>
+        <button onclick="clearWishlist()" style="margin-top:10px; background:none; color:red; border:none; cursor:pointer;">Изчисти всичко</button>
     </div>
 
     <script>
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSgJ-kHe9TWjaLRZnHtfdDebDFdjeTeXs3wytH5XC2WM7aUiWe11BWZ5_i3XKaW2FIIwR3unCQVukDy/pub?output=csv';
+        
+        let wishlist = [];
 
-        async function fetchProducts() {
-            const container = document.getElementById('product-container');
-            const loader = document.getElementById('loader');
-
+        async function initMenu() {
             try {
-                const response = await fetch(SHEET_URL);
-                const csvText = await response.text();
+                const res = await fetch(SHEET_URL);
+                const data = await res.text();
+                const rows = data.split('\n').slice(1);
                 
-                // Split by rows and filter out empty lines
-                const rows = csvText.split('\n').slice(1).filter(row => row.trim() !== ""); 
-                
-                loader.style.display = 'none';
-                container.innerHTML = '';
+                const categories = {};
 
                 rows.forEach(row => {
-                    // Regex helps handle commas inside titles if they are quoted in CSV
-                    const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    
-                    if (columns.length >= 2) {
-                        const title = columns[0].replace(/"/g, '').trim();
-                        const price = columns[1].trim();
-                        const img = columns[2] ? columns[2].trim() : 'https://via.placeholder.com/300x200?text=No+Image';
-                        const category = columns[3] ? columns[3].trim() : 'Общи';
+                    const cols = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+                    if (cols.length >= 2) {
+                        const item = {
+                            title: cols[0].replace(/"/g, '').trim(),
+                            price: cols[1].trim(),
+                            img: cols[2]?.trim() || 'https://via.placeholder.com/300',
+                            cat: cols[3]?.trim() || 'Други',
+                            desc: cols[4]?.replace(/"/g, '').trim() || 'Няма описание за този продукт.'
+                        };
 
-                        const productHTML = `
-                            <div class="product-card">
-                                <div class="product-img" style="background-image: url('${img}')"></div>
-                                <div class="product-info">
-                                    <span class="category">${category}</span>
-                                    <h3>${title}</h3>
-                                    <p class="price">${price} лв.</p>
-                                    <button class="add-to-cart" onclick="updateCart()">Добави</button>
-                                </div>
-                            </div>
-                        `;
-                        container.innerHTML += productHTML;
+                        if (!categories[item.cat]) categories[item.cat] = [];
+                        categories[item.cat].push(item);
                     }
                 });
-            } catch (error) {
-                console.error('Грешка при зареждане:', error);
-                loader.innerText = 'Грешка при връзка с менюто.';
+
+                renderMenu(categories);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderMenu(categories) {
+            const container = document.getElementById('menu-content');
+            container.innerHTML = '';
+
+            for (let cat in categories) {
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                section.innerHTML = `<h2 class="category-title">${cat}</h2><div class="grid"></div>`;
+                
+                const grid = section.querySelector('.grid');
+                categories[cat].forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <div class="img-container" style="background-image:url('${item.img}')"></div>
+                        <div class="info">
+                            <h3>${item.title}</h3>
+                            <p class="price">${item.price} лв.</p>
+                        </div>
+                    `;
+                    card.onclick = () => openModal(item);
+                    grid.appendChild(card);
+                });
+                container.appendChild(section);
             }
         }
 
-        let count = 0;
-        function updateCart() {
-            count++;
-            document.getElementById('cart-count').innerText = count;
+        function openModal(item) {
+            document.getElementById('modal-title').innerText = item.title;
+            document.getElementById('modal-price').innerText = item.price + " лв.";
+            document.getElementById('modal-desc').innerText = item.desc;
+            document.getElementById('modal-img').style.backgroundImage = `url('${item.img}')`;
+            document.getElementById('overlay').style.display = 'flex';
+            
+            document.getElementById('add-wish-btn').onclick = () => addToWishlist(item.title);
         }
 
-        window.onload = fetchProducts;
+        function closeModal(e) {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function addToWishlist(title) {
+            wishlist.push(title);
+            document.getElementById('count').innerText = wishlist.length;
+            updateWishlistUI();
+            closeModal();
+        }
+
+        function updateWishlistUI() {
+            const list = document.getElementById('wishlist-items');
+            list.innerHTML = wishlist.map(i => `<li>• ${i}</li>`).join('');
+        }
+
+        function toggleWishlist() {
+            const m = document.getElementById('wishlist-modal');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function clearWishlist() {
+            wishlist = [];
+            document.getElementById('count').innerText = "0";
+            updateWishlistUI();
+            toggleWishlist();
+        }
+
+        window.onload = initMenu;
     </script>
 </body>
 </html>
