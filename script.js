@@ -1,13 +1,13 @@
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSgJ-kHe9TWjaLRZnHtfdDebDFdjeTeXs3wytH5XC2WM7aUiWe11BWZ5_i3XKaW2FIIwR3unCQVukDy/pub?output=csv';
 
-// Зареждаме списъка (вече като масив от обекти)
-let wishlist = JSON.parse(localStorage.getItem('myMenuWishlist')) || [];
+let wishlist = JSON.parse(localStorage.getItem('eliteMenuWishlist')) || [];
 
-async function fetchMenu() {
+async function initMenu() {
     try {
         const response = await fetch(SHEET_URL);
-        const data = await response.text();
-        const rows = data.split('\n').slice(1);
+        const csvText = await response.text();
+        const rows = csvText.split('\n').slice(1);
+        
         const categories = {};
 
         rows.forEach(row => {
@@ -15,31 +15,33 @@ async function fetchMenu() {
             if (cols.length >= 2) {
                 const item = {
                     title: cols[0].replace(/"/g, '').trim(),
-                    price: parseFloat(cols[1].trim().replace(',', '.')), // Конвертираме към число
+                    price: parseFloat(cols[1].trim().replace(',', '.')),
                     img: cols[2]?.trim() || 'https://via.placeholder.com/400x300',
                     category: cols[3]?.trim() || 'Други',
-                    desc: cols[4]?.replace(/"/g, '').trim() || 'Очаквайте описание скоро.'
+                    desc: cols[4]?.replace(/"/g, '').trim() || 'Елегантно поднесено изкушение.'
                 };
+
                 if (!categories[item.category]) categories[item.category] = [];
                 categories[item.category].push(item);
             }
         });
+
         renderMenu(categories);
         updateWishlistUI();
-    } catch (error) {
-        console.error(error);
+    } catch (err) {
+        document.getElementById('loader').innerText = "Грешка при връзката с кухнята.";
     }
 }
 
 function renderMenu(categories) {
-    const container = document.getElementById('menu-content');
+    const main = document.getElementById('menu-content');
     document.getElementById('loader').style.display = 'none';
-    container.innerHTML = '';
+    main.innerHTML = '';
 
-    for (const [cat, products] of Object.entries(categories)) {
+    for (const [catName, products] of Object.entries(categories)) {
         const section = document.createElement('section');
         section.innerHTML = `
-            <h2 class="category-title">${cat}</h2>
+            <h2 class="category-title">${catName}</h2>
             <div class="grid">
                 ${products.map(p => `
                     <div class="product-card" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
@@ -52,7 +54,7 @@ function renderMenu(categories) {
                 `).join('')}
             </div>
         `;
-        container.appendChild(section);
+        main.appendChild(section);
     }
 }
 
@@ -62,7 +64,7 @@ function openModal(item) {
     document.getElementById('modal-desc').innerText = item.desc;
     document.getElementById('modal-img').style.backgroundImage = `url('${item.img}')`;
     
-    document.getElementById('add-wish-btn').onclick = () => {
+    document.getElementById('add-to-wish-btn').onclick = () => {
         addToWishlist(item);
         closeModal();
     };
@@ -70,61 +72,57 @@ function openModal(item) {
 }
 
 function addToWishlist(item) {
-    // Позволяваме добавяне на един и същ продукт няколко пъти
     wishlist.push({
-        id: Date.now(), // Уникално ID за триене
+        uid: Date.now(), // Уникален ID за премахване
         title: item.title,
         price: item.price
     });
-    saveAndRefresh();
+    save();
 }
 
-function removeFromWishlist(id) {
-    wishlist = wishlist.filter(item => item.id !== id);
-    saveAndRefresh();
+function removeItem(uid) {
+    wishlist = wishlist.filter(i => i.uid !== uid);
+    save();
 }
 
 function updateWishlistUI() {
-    const listElement = document.getElementById('wishlist-items');
-    const countElement = document.getElementById('count');
+    const list = document.getElementById('wishlist-items');
+    const footer = document.getElementById('sidebar-footer');
+    document.getElementById('count').innerText = wishlist.length;
     
-    listElement.innerHTML = '';
+    list.innerHTML = '';
     let total = 0;
 
     wishlist.forEach(item => {
         total += item.price;
-        const li = document.createElement('li');
-        li.className = 'wish-item';
-        li.innerHTML = `
-            <div class="wish-item-info">
-                <span class="wish-item-name">${item.title}</span>
-                <span class="wish-item-price">€ ${item.price.toFixed(2)}</span>
+        const div = document.createElement('div');
+        div.className = 'wish-item';
+        div.innerHTML = `
+            <div>
+                <p style="font-weight:600">${item.title}</p>
+                <p style="color:var(--gold)">€ ${item.price.toFixed(2)}</p>
             </div>
-            <button class="remove-item" onclick="removeFromWishlist(${item.id})">&times;</button>
+            <button class="remove-btn" onclick="removeItem(${item.uid})">&times;</button>
         `;
-        listElement.appendChild(li);
+        list.appendChild(div);
     });
 
-    countElement.innerText = wishlist.length;
-    
-    // Добавяме секция за тотал, ако не съществува
-    const footer = document.querySelector('.sidebar-footer');
     footer.innerHTML = `
-        <div class="total-box">
+        <div class="total-row">
             <span>Общо:</span>
-            <span class="total-price">€ ${total.toFixed(2)}</span>
+            <span>€ ${total.toFixed(2)}</span>
         </div>
-        <button class="clear-btn" onclick="clearWishlist()">Изчисти всичко</button>
+        <button class="btn-add" style="background:transparent; border:1px solid #ff4d4d; color:#ff4d4d" onclick="clearAll()">Изчисти всичко</button>
     `;
 }
 
-function saveAndRefresh() {
-    localStorage.setItem('myMenuWishlist', JSON.stringify(wishlist));
+function save() {
+    localStorage.setItem('eliteMenuWishlist', JSON.stringify(wishlist));
     updateWishlistUI();
 }
 
-// Помощни функции
+function clearAll() { wishlist = []; save(); }
 function closeModal() { document.getElementById('overlay').style.display = 'none'; }
 function toggleWishlist() { document.getElementById('wishlist-sidebar').classList.toggle('active'); }
-function clearWishlist() { wishlist = []; saveAndRefresh(); }
-window.onload = fetchMenu;
+
+window.onload = initMenu;
