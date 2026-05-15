@@ -25,7 +25,7 @@ async function initMenu() {
             }
         });
 
-        renderNav(Object.keys(categories));
+        renderDropupMenu(Object.keys(categories));
         renderMenu(categories);
         updateWishlistUI();
     } catch (err) {
@@ -33,31 +33,28 @@ async function initMenu() {
     }
 }
 
-// Генериране на навигацията
-function renderNav(categoryNames) {
-    const nav = document.getElementById('category-nav');
-    nav.innerHTML = categoryNames.map(name => 
-        `<a href="#${name.replace(/\s+/g, '-')}" class="nav-link">${name}</a>`
-    ).join('');
-
-    // Логика за активен линк при скрол
-    window.addEventListener('scroll', () => {
-        let current = "";
-        const sections = document.querySelectorAll('.category-section');
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            if (pageYOffset >= sectionTop - 100) {
-                current = section.getAttribute('id');
-            }
-        });
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href').includes(current)) {
-                link.classList.add('active');
-            }
-        });
-    });
+// Управление на балончето с категории
+function toggleCategoryMenu() {
+    const menu = document.getElementById('category-dropup');
+    const isVisible = menu.style.display === 'flex';
+    menu.style.display = isVisible ? 'none' : 'flex';
 }
+
+function renderDropupMenu(categoryNames) {
+    const menu = document.getElementById('category-dropup');
+    menu.innerHTML = categoryNames.map(name => `
+        <a href="#${name.replace(/\s+/g, '-')}" class="dropup-link" onclick="toggleCategoryMenu()">${name}</a>
+    `).join('');
+}
+
+// Затваряне на менюто при клик извън него
+window.addEventListener('click', (e) => {
+    const menu = document.getElementById('category-dropup');
+    const trigger = document.getElementById('category-trigger');
+    if (!menu.contains(e.target) && !trigger.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});
 
 function renderMenu(categories) {
     const main = document.getElementById('menu-content');
@@ -87,7 +84,7 @@ function renderMenu(categories) {
     }
 }
 
-// Modal & Wishlist Logic
+// Modal & Wishlist
 function openModal(item) {
     document.getElementById('modal-title').innerText = item.title;
     document.getElementById('modal-price').innerText = `€ ${item.price.toFixed(2)}`;
@@ -117,11 +114,11 @@ function updateWishlistUI() {
         total += item.price;
         const div = document.createElement('div');
         div.className = 'wish-item';
-        div.innerHTML = `<div><p>${item.title}</p><p>€ ${item.price.toFixed(2)}</p></div>
+        div.innerHTML = `<div><p style="font-weight:600">${item.title}</p><p style="color:var(--gold)">€ ${item.price.toFixed(2)}</p></div>
                          <button class="remove-btn" onclick="removeItem(${item.uid})">&times;</button>`;
         list.appendChild(div);
     });
-    footer.innerHTML = `<div class="total-row"><span>Общо:</span><span>€ ${total.toFixed(2)}</span></div>
+    footer.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:1.4rem; font-weight:800; margin-bottom:20px;"><span>Общо:</span><span>€ ${total.toFixed(2)}</span></div>
                         <button class="btn-add" style="background:transparent; border:1px solid #ff4d4d; color:#ff4d4d" onclick="clearAll()">Изчисти всичко</button>`;
 }
 
