@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Digital Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--accent-color);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        #product-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-img {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            background-color: #334155;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .category {
+            font-size: 0.7rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .product-info h3 {
+            margin: 0.5rem 0;
+            font-size: 1.25rem;
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent-color);
+            color: #0f172a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .add-to-cart:active {
+            transform: scale(0.98);
+        }
+
+        /* Floating Cart Icon */
+        .cart-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-color);
+            color: #0f172a;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            font-weight: 600;
+            z-index: 100;
+        }
+
+        #loader {
+            text-align: center;
+            padding: 5rem;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            #product-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <p>Добре дошли в</p>
+        <h1>НАШЕТО МЕНЮ</h1>
+    </header>
+
+    <div id="loader">Зареждане на менюто...</div>
+    <div id="product-container"></div>
+
+    <div class="cart-status">
+        🛒 Количка: <span id="cart-count">0</span>
+    </div>
+
+    <script>
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSgJ-kHe9TWjaLRZnHtfdDebDFdjeTeXs3wytH5XC2WM7aUiWe11BWZ5_i3XKaW2FIIwR3unCQVukDy/pub?output=csv';
+
+        async function fetchProducts() {
+            const container = document.getElementById('product-container');
+            const loader = document.getElementById('loader');
+
+            try {
+                const response = await fetch(SHEET_URL);
+                const csvText = await response.text();
+                
+                // Split by rows and filter out empty lines
+                const rows = csvText.split('\n').slice(1).filter(row => row.trim() !== ""); 
+                
+                loader.style.display = 'none';
+                container.innerHTML = '';
+
+                rows.forEach(row => {
+                    // Regex helps handle commas inside titles if they are quoted in CSV
+                    const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
+                    if (columns.length >= 2) {
+                        const title = columns[0].replace(/"/g, '').trim();
+                        const price = columns[1].trim();
+                        const img = columns[2] ? columns[2].trim() : 'https://via.placeholder.com/300x200?text=No+Image';
+                        const category = columns[3] ? columns[3].trim() : 'Общи';
+
+                        const productHTML = `
+                            <div class="product-card">
+                                <div class="product-img" style="background-image: url('${img}')"></div>
+                                <div class="product-info">
+                                    <span class="category">${category}</span>
+                                    <h3>${title}</h3>
+                                    <p class="price">${price} лв.</p>
+                                    <button class="add-to-cart" onclick="updateCart()">Добави</button>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += productHTML;
+                    }
+                });
+            } catch (error) {
+                console.error('Грешка при зареждане:', error);
+                loader.innerText = 'Грешка при връзка с менюто.';
+            }
+        }
+
+        let count = 0;
+        function updateCart() {
+            count++;
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        window.onload = fetchProducts;
+    </script>
+</body>
+</html>
