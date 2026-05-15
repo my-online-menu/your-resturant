@@ -9,22 +9,17 @@
 </head>
 <body>
 
-    <!-- Floating Action Buttons Container -->
-    <div class="fab-container">
-        <!-- Wishlist Button -->
-        <div id="wishlist-trigger" class="fab-item" onclick="toggleWishlist()">
-            <span class="fab-icon">📜</span>
-            <span id="count">0</span>
-        </div>
+    <!-- Wishlist Trigger (Горе вляво) -->
+    <div id="wishlist-trigger" class="fab-top-left" onclick="toggleWishlist()">
+        <span class="fab-icon">📜</span>
+        <span id="count">0</span>
+    </div>
 
-        <!-- Categories Bubble Menu -->
-        <div class="category-fab-wrapper">
-            <div id="category-dropup" class="dropup-menu">
-                <!-- Генерира се динамично от JS -->
-            </div>
-            <div id="category-trigger" class="fab-item main-fab" onclick="toggleCategoryMenu()">
-                <span class="fab-label">КАТЕГОРИИ</span>
-            </div>
+    <!-- Category Bubble (Долу вляво) -->
+    <div class="category-fab-wrapper fab-bottom-left">
+        <div id="category-dropup" class="dropup-menu"></div>
+        <div id="category-trigger" class="fab-item main-fab" onclick="toggleCategoryMenu()">
+            <span class="fab-label">КАТЕГОРИИ</span>
         </div>
     </div>
 
@@ -34,15 +29,14 @@
             <p class="hero-pre">ДОБРЕ ДОШЛИ В</p>
             <h1 class="hero-title">ELITE BISTRO</h1>
             <div class="gold-line"></div>
-            <p class="hero-tagline">Изкуство, което се опитва</p>
+            <p class="hero-tagline">Вкусете съвършенството</p>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container">
         <div id="loader" class="loader-box">
             <div class="spinner"></div>
-            <p>Подготвяме селекцията...</p>
+            <p>Подреждаме масата...</p>
         </div>
         <div id="menu-content"></div>
     </main>
@@ -50,7 +44,7 @@
     <!-- Modal Overlay -->
     <div id="overlay" class="overlay" onclick="closeModal()">
         <div class="modal" onclick="event.stopPropagation()">
-            <button class="close-x" onclick="closeModal()">&times;</button>
+            <button class="close-x" onclick="closeModal()">✖</button>
             <div id="modal-img" class="modal-img"></div>
             <div class="modal-info">
                 <div class="modal-header">
@@ -58,7 +52,7 @@
                     <span id="modal-price" class="modal-badge"></span>
                 </div>
                 <p id="modal-desc"></p>
-                <button class="btn-add" id="add-to-wish-btn">Добави в списъка</button>
+                <button class="btn-add-modal" id="add-to-wish-btn">Добави към списъка</button>
             </div>
         </div>
     </div>
@@ -66,8 +60,8 @@
     <!-- Wishlist Sidebar -->
     <div id="wishlist-sidebar" class="sidebar">
         <div class="sidebar-top">
-            <h3>Моите желания</h3>
-            <button class="close-sidebar" onclick="toggleWishlist()">&times;</button>
+            <h3>Моите Желания</h3>
+            <button class="close-sidebar" onclick="toggleWishlist()">✖</button>
         </div>
         <div id="wishlist-items" class="sidebar-list"></div>
         <div class="sidebar-footer" id="sidebar-footer"></div>
