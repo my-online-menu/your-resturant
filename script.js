@@ -5,39 +5,58 @@ let wishlist = JSON.parse(localStorage.getItem('eliteMenuWishlist')) || [];
 async function initMenu() {
     try {
         const response = await fetch(SHEET_URL);
+        if (!response.ok) throw new Error("Неуспешно свързване с Google Sheets");
+        
         const csvText = await response.text();
-        const rows = csvText.split('\n').slice(1);
+        const rows = csvText.split('\n').filter(row => row.trim() !== ""); // Премахва празни редове
         
         const categories = {};
 
-        rows.forEach(row => {
-            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            if (cols.length >= 2) {
-                const item = {
-                    title: cols[0].replace(/"/g, '').trim(),
-                    price: parseFloat(cols[1].trim().replace(',', '.')),
-                    img: cols[2]?.trim() || 'https://via.placeholder.com/400x300',
-                    category: cols[3]?.trim() || 'Други',
-                    desc: cols[4]?.replace(/"/g, '').trim() || 'Елегантно поднесено изкушение.'
-                };
-                if (!categories[item.category]) categories[item.category] = [];
-                categories[item.category].push(item);
+        // Започваме от 1, за да прескочим заглавията
+        for (let i = 1; i < rows.length; i++) {
+            try {
+                // Използваме по-мощен Regex за разделяне, който игнорира запетаи вътре в кавички
+                const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                
+                if (cols.length >= 2) {
+                    const title = cols[0] ? cols[0].replace(/"/g, '').trim() : "Без име";
+                    const rawPrice = cols[1] ? cols[1].trim().replace(',', '.') : "0";
+                    const price = parseFloat(rawPrice) || 0;
+                    const img = cols[2] ? cols[2].trim() : 'https://via.placeholder.com/400x300';
+                    const category = cols[3] ? cols[3].trim() : 'Други';
+                    const desc = cols[4] ? cols[4].replace(/"/g, '').trim() : 'Няма описание.';
+
+                    const item = { title, price, img, category, desc };
+
+                    if (!categories[category]) categories[category] = [];
+                    categories[category].push(item);
+                }
+            } catch (rowError) {
+                console.warn(`Грешка на ред ${i}:`, rowError);
+                continue; // Продължава със следващия продукт, вместо да чупи всичко
             }
-        });
+        }
+
+        if (Object.keys(categories).length === 0) {
+            document.getElementById('loader').innerText = "Таблицата е празна или не е публикувана правилно.";
+            return;
+        }
 
         renderDropupMenu(Object.keys(categories));
         renderMenu(categories);
         updateWishlistUI();
     } catch (err) {
-        document.getElementById('loader').innerText = "Грешка при зареждане.";
+        console.error("Критична грешка:", err);
+        document.getElementById('loader').innerText = "Критична грешка при зареждане. Моля, проверете CSV линка.";
     }
 }
 
-// Управление на балончето с категории
+// Всички останали функции (toggleCategoryMenu, renderDropupMenu, renderMenu, openModal и т.н.) остават същите.
+// Увери се, че си копирал и тях от предишния ми отговор!
+
 function toggleCategoryMenu() {
     const menu = document.getElementById('category-dropup');
-    const isVisible = menu.style.display === 'flex';
-    menu.style.display = isVisible ? 'none' : 'flex';
+    menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
 }
 
 function renderDropupMenu(categoryNames) {
@@ -46,15 +65,6 @@ function renderDropupMenu(categoryNames) {
         <a href="#${name.replace(/\s+/g, '-')}" class="dropup-link" onclick="toggleCategoryMenu()">${name}</a>
     `).join('');
 }
-
-// Затваряне на менюто при клик извън него
-window.addEventListener('click', (e) => {
-    const menu = document.getElementById('category-dropup');
-    const trigger = document.getElementById('category-trigger');
-    if (!menu.contains(e.target) && !trigger.contains(e.target)) {
-        menu.style.display = 'none';
-    }
-});
 
 function renderMenu(categories) {
     const main = document.getElementById('menu-content');
@@ -71,7 +81,7 @@ function renderMenu(categories) {
             <div class="grid">
                 ${products.map(p => `
                     <div class="product-card" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
-                        <div class="img-box" style="background-image: url('${p.img}')"></div>
+                        <div class="img-box" style="background-image: url("${p.img}")"></div>
                         <div class="info-box">
                             <h3>${p.title}</h3>
                             <span class="price">€ ${p.price.toFixed(2)}</span>
@@ -84,12 +94,11 @@ function renderMenu(categories) {
     }
 }
 
-// Modal & Wishlist
 function openModal(item) {
     document.getElementById('modal-title').innerText = item.title;
     document.getElementById('modal-price').innerText = `€ ${item.price.toFixed(2)}`;
     document.getElementById('modal-desc').innerText = item.desc;
-    document.getElementById('modal-img').style.backgroundImage = `url('${item.img}')`;
+    document.getElementById('modal-img').style.backgroundImage = `url("${item.img}")`;
     document.getElementById('add-to-wish-btn').onclick = () => { addToWishlist(item); closeModal(); };
     document.getElementById('overlay').style.display = 'flex';
 }
