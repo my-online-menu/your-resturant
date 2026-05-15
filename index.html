@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Digital Menu</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- Floating Wishlist Trigger -->
+    <div id="wishlist-trigger" onclick="toggleWishlist()">
+        <span class="icon">⭐</span>
+        <span id="count">0</span>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-overlay">
+            <p class="hero-subtitle">Добре дошли в</p>
+            <h1 class="hero-title">ELITE BISTRO</h1>
+            <div class="separator"></div>
+            <p class="hero-tagline">Изживяване за сетивата</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="loader">
+            <div class="spinner"></div>
+            <p>Готвим менюто за Вас...</p>
+        </div>
+        <div id="menu-content"></div>
+    </main>
+
+    <!-- Product Modal Overlay -->
+    <div id="overlay" class="overlay" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div id="modal-img" class="modal-header-img"></div>
+            <div class="modal-body">
+                <div class="modal-meta">
+                    <h2 id="modal-title"></h2>
+                    <span id="modal-price" class="price-tag"></span>
+                </div>
+                <p id="modal-desc"></p>
+                <button class="add-wish-btn" id="add-wish-btn">
+                    Добави в списъка с желания
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Wishlist -->
+    <div id="wishlist-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>Моите желания</h3>
+            <button onclick="toggleWishlist()">&times;</button>
+        </div>
+        <ul id="wishlist-items"></ul>
+        <div class="sidebar-footer">
+            <button class="clear-btn" onclick="clearWishlist()">Изчисти всичко</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
