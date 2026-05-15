@@ -5,54 +5,33 @@ let wishlist = JSON.parse(localStorage.getItem('eliteMenuWishlist')) || [];
 async function initMenu() {
     try {
         const response = await fetch(SHEET_URL);
-        if (!response.ok) throw new Error("Неуспешно свързване с Google Sheets");
-        
         const csvText = await response.text();
-        const rows = csvText.split('\n').filter(row => row.trim() !== ""); // Премахва празни редове
+        const rows = csvText.split('\n').filter(row => row.trim() !== "");
         
         const categories = {};
 
-        // Започваме от 1, за да прескочим заглавията
         for (let i = 1; i < rows.length; i++) {
-            try {
-                // Използваме по-мощен Regex за разделяне, който игнорира запетаи вътре в кавички
-                const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                
-                if (cols.length >= 2) {
-                    const title = cols[0] ? cols[0].replace(/"/g, '').trim() : "Без име";
-                    const rawPrice = cols[1] ? cols[1].trim().replace(',', '.') : "0";
-                    const price = parseFloat(rawPrice) || 0;
-                    const img = cols[2] ? cols[2].trim() : 'https://via.placeholder.com/400x300';
-                    const category = cols[3] ? cols[3].trim() : 'Други';
-                    const desc = cols[4] ? cols[4].replace(/"/g, '').trim() : 'Няма описание.';
-
-                    const item = { title, price, img, category, desc };
-
-                    if (!categories[category]) categories[category] = [];
-                    categories[category].push(item);
-                }
-            } catch (rowError) {
-                console.warn(`Грешка на ред ${i}:`, rowError);
-                continue; // Продължава със следващия продукт, вместо да чупи всичко
+            const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            if (cols.length >= 2) {
+                const item = {
+                    title: cols[0].replace(/"/g, '').trim(),
+                    price: parseFloat(cols[1].trim().replace(',', '.')),
+                    img: cols[2]?.trim() || 'https://via.placeholder.com/400x300',
+                    category: cols[3]?.trim() || 'Други',
+                    desc: cols[4]?.replace(/"/g, '').trim() || 'Елегантно поднесено изкушение.'
+                };
+                if (!categories[item.category]) categories[item.category] = [];
+                categories[item.category].push(item);
             }
-        }
-
-        if (Object.keys(categories).length === 0) {
-            document.getElementById('loader').innerText = "Таблицата е празна или не е публикувана правилно.";
-            return;
         }
 
         renderDropupMenu(Object.keys(categories));
         renderMenu(categories);
         updateWishlistUI();
     } catch (err) {
-        console.error("Критична грешка:", err);
-        document.getElementById('loader').innerText = "Критична грешка при зареждане. Моля, проверете CSV линка.";
+        document.getElementById('loader').innerText = "Грешка при зареждане.";
     }
 }
-
-// Всички останали функции (toggleCategoryMenu, renderDropupMenu, renderMenu, openModal и т.н.) остават същите.
-// Увери се, че си копирал и тях от предишния ми отговор!
 
 function toggleCategoryMenu() {
     const menu = document.getElementById('category-dropup');
@@ -80,11 +59,14 @@ function renderMenu(categories) {
             <h2 class="category-title">${catName}</h2>
             <div class="grid">
                 ${products.map(p => `
-                    <div class="product-card" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
-                        <div class="img-box" style="background-image: url("${p.img}")"></div>
+                    <div class="product-card">
+                        <div class="img-box" style="background-image: url('${p.img}')" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&apos;")})'></div>
                         <div class="info-box">
-                            <h3>${p.title}</h3>
-                            <span class="price">€ ${p.price.toFixed(2)}</span>
+                            <div>
+                                <h3>${p.title}</h3>
+                                <span class="price">€ ${p.price.toFixed(2)}</span>
+                            </div>
+                            <button class="btn-direct-add" onclick='addToWishlist(${JSON.stringify(p).replace(/'/g, "&apos;")})'>+ Добави</button>
                         </div>
                     </div>
                 `).join('')}
@@ -98,7 +80,7 @@ function openModal(item) {
     document.getElementById('modal-title').innerText = item.title;
     document.getElementById('modal-price').innerText = `€ ${item.price.toFixed(2)}`;
     document.getElementById('modal-desc').innerText = item.desc;
-    document.getElementById('modal-img').style.backgroundImage = `url("${item.img}")`;
+    document.getElementById('modal-img').style.backgroundImage = `url('${item.img}')`;
     document.getElementById('add-to-wish-btn').onclick = () => { addToWishlist(item); closeModal(); };
     document.getElementById('overlay').style.display = 'flex';
 }
@@ -124,11 +106,15 @@ function updateWishlistUI() {
         const div = document.createElement('div');
         div.className = 'wish-item';
         div.innerHTML = `<div><p style="font-weight:600">${item.title}</p><p style="color:var(--gold)">€ ${item.price.toFixed(2)}</p></div>
-                         <button class="remove-btn" onclick="removeItem(${item.uid})">&times;</button>`;
+                         <button class="remove-btn" onclick="removeItem(${item.uid})">✖</button>`;
         list.appendChild(div);
     });
-    footer.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:1.4rem; font-weight:800; margin-bottom:20px;"><span>Общо:</span><span>€ ${total.toFixed(2)}</span></div>
-                        <button class="btn-add" style="background:transparent; border:1px solid #ff4d4d; color:#ff4d4d" onclick="clearAll()">Изчисти всичко</button>`;
+    footer.innerHTML = `
+        <div style="display:flex; justify-content:space-between; font-size:1.3rem; font-weight:800; margin: 20px 0;">
+            <span>Общо:</span><span>€ ${total.toFixed(2)}</span>
+        </div>
+        <button class="btn-add-modal" style="background:transparent; border:1px solid #ff4d4d; color:#ff4d4d" onclick="clearAll()">Изчисти всичко</button>
+    `;
 }
 
 function save() { localStorage.setItem('eliteMenuWishlist', JSON.stringify(wishlist)); updateWishlistUI(); }
