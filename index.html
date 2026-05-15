@@ -3,65 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Digital Menu</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts & Icons -->
+    <title>Elite Digital Menu | €</title>
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Floating Wishlist Trigger -->
+    <!-- Floating Action Button -->
     <div id="wishlist-trigger" onclick="toggleWishlist()">
-        <span class="icon">⭐</span>
+        <span class="icon">📜</span>
         <span id="count">0</span>
     </div>
 
     <!-- Hero Section -->
     <header class="hero">
-        <div class="hero-overlay">
-            <p class="hero-subtitle">Добре дошли в</p>
+        <div class="hero-content">
+            <p class="hero-pre">ДОБРЕ ДОШЛИ В</p>
             <h1 class="hero-title">ELITE BISTRO</h1>
-            <div class="separator"></div>
-            <p class="hero-tagline">Изживяване за сетивата</p>
+            <div class="gold-line"></div>
+            <p class="hero-desc">Изтънчен вкус във всяка хапка</p>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="container">
-        <div id="loader">
+        <div id="loader" class="loader-box">
             <div class="spinner"></div>
-            <p>Готвим менюто за Вас...</p>
+            <p>Приготвяме менюто...</p>
         </div>
         <div id="menu-content"></div>
     </main>
 
-    <!-- Product Modal Overlay -->
+    <!-- Overlay / Product Details -->
     <div id="overlay" class="overlay" onclick="closeModal()">
         <div class="modal" onclick="event.stopPropagation()">
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-            <div id="modal-img" class="modal-header-img"></div>
-            <div class="modal-body">
-                <div class="modal-meta">
+            <button class="close-x" onclick="closeModal()">&times;</button>
+            <div id="modal-img" class="modal-img"></div>
+            <div class="modal-info">
+                <div class="modal-header">
                     <h2 id="modal-title"></h2>
-                    <span id="modal-price" class="price-tag"></span>
+                    <span id="modal-price" class="modal-badge"></span>
                 </div>
                 <p id="modal-desc"></p>
-                <button class="add-wish-btn" id="add-wish-btn">
-                    Добави в списъка с желания
-                </button>
+                <button class="btn-add" id="add-to-wish-btn">Добави към моите желания</button>
             </div>
         </div>
     </div>
 
-    <!-- Sidebar Wishlist -->
+    <!-- Wishlist Sidebar -->
     <div id="wishlist-sidebar" class="sidebar">
-        <div class="sidebar-header">
+        <div class="sidebar-top">
             <h3>Моите желания</h3>
-            <button onclick="toggleWishlist()">&times;</button>
+            <button class="close-sidebar" onclick="toggleWishlist()">&times;</button>
         </div>
-        <ul id="wishlist-items"></ul>
-        <div class="sidebar-footer">
-            <button class="clear-btn" onclick="clearWishlist()">Изчисти всичко</button>
+        <div id="wishlist-items" class="sidebar-list">
+            <!-- Items populate here -->
+        </div>
+        <div class="sidebar-footer" id="sidebar-footer">
+            <!-- Total and Clear button here -->
         </div>
     </div>
 
