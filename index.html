@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elite Digital Menu | €</title>
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -22,9 +21,12 @@
             <p class="hero-pre">ДОБРЕ ДОШЛИ В</p>
             <h1 class="hero-title">ELITE BISTRO</h1>
             <div class="gold-line"></div>
-            <p class="hero-desc">Изтънчен вкус във всяка хапка</p>
+            <p class="hero-tagline">Изтънчен вкус във всяка хапка</p>
         </div>
     </header>
+
+    <!-- Sticky Category Navigation -->
+    <nav class="category-nav" id="category-nav"></nav>
 
     <!-- Main Content -->
     <main class="container">
@@ -46,7 +48,7 @@
                     <span id="modal-price" class="modal-badge"></span>
                 </div>
                 <p id="modal-desc"></p>
-                <button class="btn-add" id="add-to-wish-btn">Добави към моите желания</button>
+                <button class="btn-add" id="add-to-wish-btn">Добави към списъка</button>
             </div>
         </div>
     </div>
@@ -57,12 +59,8 @@
             <h3>Моите желания</h3>
             <button class="close-sidebar" onclick="toggleWishlist()">&times;</button>
         </div>
-        <div id="wishlist-items" class="sidebar-list">
-            <!-- Items populate here -->
-        </div>
-        <div class="sidebar-footer" id="sidebar-footer">
-            <!-- Total and Clear button here -->
-        </div>
+        <div id="wishlist-items" class="sidebar-list"></div>
+        <div class="sidebar-footer" id="sidebar-footer"></div>
     </div>
 
     <script src="script.js"></script>
