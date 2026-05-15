@@ -20,17 +20,43 @@ async function initMenu() {
                     category: cols[3]?.trim() || 'Други',
                     desc: cols[4]?.replace(/"/g, '').trim() || 'Елегантно поднесено изкушение.'
                 };
-
                 if (!categories[item.category]) categories[item.category] = [];
                 categories[item.category].push(item);
             }
         });
 
+        renderNav(Object.keys(categories));
         renderMenu(categories);
         updateWishlistUI();
     } catch (err) {
-        document.getElementById('loader').innerText = "Грешка при връзката с кухнята.";
+        document.getElementById('loader').innerText = "Грешка при зареждане.";
     }
+}
+
+// Генериране на навигацията
+function renderNav(categoryNames) {
+    const nav = document.getElementById('category-nav');
+    nav.innerHTML = categoryNames.map(name => 
+        `<a href="#${name.replace(/\s+/g, '-')}" class="nav-link">${name}</a>`
+    ).join('');
+
+    // Логика за активен линк при скрол
+    window.addEventListener('scroll', () => {
+        let current = "";
+        const sections = document.querySelectorAll('.category-section');
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 100) {
+                current = section.getAttribute('id');
+            }
+        });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(current)) {
+                link.classList.add('active');
+            }
+        });
+    });
 }
 
 function renderMenu(categories) {
@@ -39,7 +65,10 @@ function renderMenu(categories) {
     main.innerHTML = '';
 
     for (const [catName, products] of Object.entries(categories)) {
+        const sectionId = catName.replace(/\s+/g, '-');
         const section = document.createElement('section');
+        section.id = sectionId;
+        section.className = 'category-section';
         section.innerHTML = `
             <h2 class="category-title">${catName}</h2>
             <div class="grid">
@@ -58,25 +87,18 @@ function renderMenu(categories) {
     }
 }
 
+// Modal & Wishlist Logic
 function openModal(item) {
     document.getElementById('modal-title').innerText = item.title;
     document.getElementById('modal-price').innerText = `€ ${item.price.toFixed(2)}`;
     document.getElementById('modal-desc').innerText = item.desc;
     document.getElementById('modal-img').style.backgroundImage = `url('${item.img}')`;
-    
-    document.getElementById('add-to-wish-btn').onclick = () => {
-        addToWishlist(item);
-        closeModal();
-    };
+    document.getElementById('add-to-wish-btn').onclick = () => { addToWishlist(item); closeModal(); };
     document.getElementById('overlay').style.display = 'flex';
 }
 
 function addToWishlist(item) {
-    wishlist.push({
-        uid: Date.now(), // Уникален ID за премахване
-        title: item.title,
-        price: item.price
-    });
+    wishlist.push({ uid: Date.now(), title: item.title, price: item.price });
     save();
 }
 
@@ -89,38 +111,21 @@ function updateWishlistUI() {
     const list = document.getElementById('wishlist-items');
     const footer = document.getElementById('sidebar-footer');
     document.getElementById('count').innerText = wishlist.length;
-    
     list.innerHTML = '';
     let total = 0;
-
     wishlist.forEach(item => {
         total += item.price;
         const div = document.createElement('div');
         div.className = 'wish-item';
-        div.innerHTML = `
-            <div>
-                <p style="font-weight:600">${item.title}</p>
-                <p style="color:var(--gold)">€ ${item.price.toFixed(2)}</p>
-            </div>
-            <button class="remove-btn" onclick="removeItem(${item.uid})">&times;</button>
-        `;
+        div.innerHTML = `<div><p>${item.title}</p><p>€ ${item.price.toFixed(2)}</p></div>
+                         <button class="remove-btn" onclick="removeItem(${item.uid})">&times;</button>`;
         list.appendChild(div);
     });
-
-    footer.innerHTML = `
-        <div class="total-row">
-            <span>Общо:</span>
-            <span>€ ${total.toFixed(2)}</span>
-        </div>
-        <button class="btn-add" style="background:transparent; border:1px solid #ff4d4d; color:#ff4d4d" onclick="clearAll()">Изчисти всичко</button>
-    `;
+    footer.innerHTML = `<div class="total-row"><span>Общо:</span><span>€ ${total.toFixed(2)}</span></div>
+                        <button class="btn-add" style="background:transparent; border:1px solid #ff4d4d; color:#ff4d4d" onclick="clearAll()">Изчисти всичко</button>`;
 }
 
-function save() {
-    localStorage.setItem('eliteMenuWishlist', JSON.stringify(wishlist));
-    updateWishlistUI();
-}
-
+function save() { localStorage.setItem('eliteMenuWishlist', JSON.stringify(wishlist)); updateWishlistUI(); }
 function clearAll() { wishlist = []; save(); }
 function closeModal() { document.getElementById('overlay').style.display = 'none'; }
 function toggleWishlist() { document.getElementById('wishlist-sidebar').classList.toggle('active'); }
