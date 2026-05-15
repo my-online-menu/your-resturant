@@ -1,90 +1,135 @@
-/* Към съществуващия root добавяме/променяме */
 :root {
-    --primary: #d4af37; /* Малко по-наситено златно */
-    --danger: #ff4d4d;
+    --gold: #d4af37;
+    --dark: #0a0c10;
+    --card: #161b22;
+    --text: #f0f6fc;
+    --dim: #8b949e;
+    --glass: rgba(255, 255, 255, 0.05);
 }
 
-/* Стил за елементите в списъка с желания */
-#wishlist-items {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-.wish-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    border: 1px solid var(--glass);
-    animation: fadeIn 0.3s ease;
-}
-
-.wish-item-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.wish-item-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.wish-item-price {
-    color: var(--primary);
-    font-size: 0.85rem;
-}
-
-.remove-item {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 5px;
-    transition: 0.2s;
-}
-
-.remove-item:hover {
-    color: var(--danger);
-    transform: scale(1.1);
-}
-
-/* Футър на сайдбара със сума */
-.sidebar-footer {
-    border-top: 1px solid var(--glass);
-    padding-top: 20px;
-    margin-top: auto;
-}
-
-.total-box {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 15px;
+body {
+    background-color: var(--dark);
     color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
 }
 
-.total-price {
-    color: var(--primary);
+/* Hero */
+.hero {
+    height: 60vh;
+    background: linear-gradient(rgba(0,0,0,0.7), var(--dark)), 
+                url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=1500');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
-.clear-btn {
-    width: 100%;
-    padding: 10px;
-    background: transparent;
-    border: 1px solid var(--danger);
-    color: var(--danger);
-    border-radius: 8px;
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    color: var(--gold);
+    margin: 10px 0;
+}
+
+.gold-line {
+    width: 80px;
+    height: 2px;
+    background: var(--gold);
+    margin: 15px auto;
+}
+
+/* Container & Grid */
+.container { max-width: 1200px; margin: -60px auto 0; padding: 0 20px 100px; }
+
+.category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin: 60px 0 30px;
+    border-bottom: 1px solid var(--glass);
+    padding-bottom: 10px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+/* Product Card */
+.product-card {
+    background: var(--card);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--glass);
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.clear-btn:hover {
-    background: var(--danger);
-    color: white;
+.product-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--gold);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+}
+
+.img-box { height: 200px; background-size: cover; background-position: center; }
+
+.info-box { padding: 20px; }
+.info-box h3 { font-size: 1.2rem; margin-bottom: 8px; }
+.info-box .price { color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+
+/* Modal */
+.overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+    display: none; align-items: center; justify-content: center; z-index: 2000;
+    backdrop-filter: blur(8px);
+}
+
+.modal {
+    background: var(--card); width: 90%; max-width: 500px;
+    border-radius: 24px; overflow: hidden; position: relative;
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.modal-img { height: 280px; background-size: cover; background-position: center; }
+.modal-info { padding: 30px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.modal-badge { background: var(--gold); color: black; padding: 4px 12px; border-radius: 12px; font-weight: 800; }
+.btn-add {
+    width: 100%; padding: 15px; border: none; border-radius: 12px;
+    background: var(--gold); color: black; font-weight: 700; cursor: pointer; margin-top: 20px;
+}
+
+/* Wishlist Sidebar */
+.sidebar {
+    position: fixed; right: -350px; top: 0; bottom: 0; width: 320px;
+    background: #0d1117; z-index: 3000; transition: 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+    padding: 25px; display: flex; flex-direction: column;
+}
+
+.sidebar.active { right: 0; box-shadow: -10px 0 40px rgba(0,0,0,0.8); }
+
+#wishlist-trigger {
+    position: fixed; top: 25px; right: 25px; background: var(--gold);
+    color: black; padding: 12px 20px; border-radius: 50px; cursor: pointer;
+    font-weight: 800; z-index: 1000; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+}
+
+/* Wishlist Items */
+.wish-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 0; border-bottom: 1px solid var(--glass);
+}
+.remove-btn { background: none; border: none; color: #ff4d4d; font-size: 1.5rem; cursor: pointer; }
+
+.total-row {
+    margin-top: 20px; padding: 20px 0; border-top: 2px solid var(--gold);
+    display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 800;
 }
